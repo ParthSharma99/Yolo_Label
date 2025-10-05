@@ -96,6 +96,81 @@ yourMacOS:Yolo_Label you$ make
 yourMacOS:Yolo_Label you$ ./YoloLabel.app/MacOS/YoloLabel
 ```
 
+## Building from Source (For Developers)
+
+If you want to modify the code and create a new executable for Windows, follow these steps:
+
+### Prerequisites for Windows
+
+1. Install [Qt](https://www.qt.io/download) (Qt 5.12 or later recommended)
+   - During installation, make sure to include:
+     - Qt Creator
+     - MinGW compiler (or MSVC if you prefer)
+     - Qt Charts (if needed)
+   
+2. Add Qt to your system PATH (usually done automatically during installation)
+
+### Building the Application
+
+1. Clone or download the source code of this repository
+
+2. Open the project in Qt Creator:
+   - Launch Qt Creator
+   - Click `File` → `Open File or Project`
+   - Select `YoloLabel.pro` from the project directory
+   - Configure the project with your preferred Qt kit (Desktop Qt MinGW or MSVC)
+
+3. Build the project:
+   - Click `Build` → `Build Project "YoloLabel"` or press `Ctrl+B`
+   - The executable will be created in a build directory (e.g., `build-YoloLabel-Desktop_Qt_X_X_X-Release`)
+
+### Creating a Distributable Windows Executable
+
+After building, you need to package the executable with required Qt libraries:
+
+1. Open Command Prompt or PowerShell
+
+2. Navigate to your build output directory:
+```cmd
+cd path\to\build-YoloLabel-Desktop_Qt_X_X_X-Release\release
+```
+
+3. Run the Qt deployment tool to copy all necessary DLLs:
+```cmd
+windeployqt YoloLabel.exe
+```
+
+4. The `release` folder now contains `YoloLabel.exe` with all required Qt libraries and can be distributed as a standalone application
+
+5. (Optional) Create a ZIP file:
+   - Copy the entire `release` folder to a new location
+   - Rename it to `YoloLabel_vX.X.X` (replace with your version)
+   - Compress it to create `YoloLabel_vX.X.X.zip`
+
+### Alternative: Building from Command Line
+
+If you prefer using the command line instead of Qt Creator:
+
+1. Open Qt command prompt (e.g., "Qt 5.15.2 (MinGW 8.1.0 64-bit)")
+
+2. Navigate to the project directory:
+```cmd
+cd path\to\Yolo_Label
+```
+
+3. Generate Makefiles:
+```cmd
+qmake YoloLabel.pro
+```
+
+4. Build the project:
+```cmd
+mingw32-make release
+```
+(or `nmake release` if using MSVC)
+
+5. Deploy as described above using `windeployqt`
+
 ## Prepare Custom Dataset and Load
 
 1. Put your .jpg, .png -images into a directory
@@ -158,6 +233,8 @@ To minimize wrist strain when labeling, I adopted the method **"twice left butto
 | `Right Click` | Delete Focused Bounding Box in the image <br> ![ezgif-5-8d0fb51bec75](https://user-images.githubusercontent.com/35001605/47706913-c20d5600-dc6d-11e8-8a5c-47065f6a6416.gif) |
 | `Wheel Down` | Save and Next Image  |
 | `Wheel Up` | Save and Prev Image |
+| `Shift + Wheel Up` | Zoom In (up to 500%) |
+| `Shift + Wheel Down` | Zoom Out (to 100%) |
 
 ## Button Events
 
@@ -184,5 +261,3 @@ I've reinvented the wheel.
 Upload binary file for easy usage for windows and ubuntu
 
 deployment for ubuntu
-
-Image zoom

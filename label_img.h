@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QImage>
 #include <QMouseEvent>
+#include <QWheelEvent>
 #include <iostream>
 #include <fstream>
 
@@ -23,6 +24,7 @@ public:
     void mouseMoveEvent(QMouseEvent *ev);
     void mousePressEvent(QMouseEvent *ev);
     void mouseReleaseEvent(QMouseEvent *ev);
+    void wheelEvent(QWheelEvent *ev);
 
     QVector<QColor> m_drawObjectBoxColor;
     QStringList     m_objList;
@@ -82,6 +84,8 @@ private:
 
     unsigned char m_gammatransform_lut[256];
     QVector<QRgb> colorTable;
+    
+    double m_zoomFactor;
 
     void setMousePosition(int , int);
 
