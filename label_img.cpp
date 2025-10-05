@@ -76,11 +76,47 @@ void label_img::mouseReleaseEvent(QMouseEvent *ev)
     emit Mouse_Release();
 }
 
+void label_img::wheelEvent(QWheelEvent *ev)
+{
+    // Check if Shift key is pressed
+    if (ev->modifiers() & Qt::ShiftModifier)
+    {
+        // Handle zoom
+        const double zoomStep = 0.1;
+        const double minZoom = 1.0;  // 100% - original size
+        const double maxZoom = 5.0;  // 500% - maximum zoom
+        
+        if (ev->angleDelta().y() > 0)
+        {
+            // Scroll up - zoom in
+            m_zoomFactor += zoomStep;
+            if (m_zoomFactor > maxZoom)
+                m_zoomFactor = maxZoom;
+        }
+        else if (ev->angleDelta().y() < 0)
+        {
+            // Scroll down - zoom out
+            m_zoomFactor -= zoomStep;
+            if (m_zoomFactor < minZoom)
+                m_zoomFactor = minZoom;
+        }
+        
+        showImage();
+        ev->accept();  // Accept the event to prevent propagation
+    }
+    else
+    {
+        // If Shift is not pressed, pass the event to parent (MainWindow)
+        ev->ignore();
+    }
+}
+
 void label_img::init()
 {
     m_objBoundingBoxes.clear();
     m_bLabelingStarted              = false;
     m_focusedObjectLabel            = 0;
+    m_zoomFactor                    = 1.0;
 
     QPoint mousePosInUi = this->mapFromGlobal(QCursor::pos());
     bool mouse_is_in_image = QRect(0, 0, this->width(), this->height()).contains(mousePosInUi);
@@ -129,6 +165,7 @@ void label_img::openImage(const QString &qstrImg, bool &ret)
                 .convertToFormat(QImage::Format_RGB888);
 
         m_bLabelingStarted  = false;
+        m_zoomFactor        = 1.0;
 
         QPoint mousePosInUi     = this->mapFromGlobal(QCursor::pos());
         bool mouse_is_in_image  = QRect(0, 0, this->width(), this->height()).contains(mousePosInUi);
@@ -147,9 +184,14 @@ void label_img::openImage(const QString &qstrImg, bool &ret)
 void label_img::showImage()
 {
     if(m_inputImg.isNull()) return;
-    if(m_resized_inputImg.width() != this->width() or m_resized_inputImg.height() != this->height())
+    
+    // Calculate the target size with zoom applied
+    int targetWidth = static_cast<int>(this->width() * m_zoomFactor);
+    int targetHeight = static_cast<int>(this->height() * m_zoomFactor);
+    
+    if(m_resized_inputImg.width() != targetWidth or m_resized_inputImg.height() != targetHeight)
     {
-        m_resized_inputImg = m_inputImg.scaled(this->width(), this->height(),Qt::IgnoreAspectRatio,Qt::SmoothTransformation)
+        m_resized_inputImg = m_inputImg.scaled(targetWidth, targetHeight, Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
                 .convertToFormat(QImage::Format_RGB888);
     }
 
@@ -384,10 +426,13 @@ QRectF label_img::getRelativeRectFromTwoPoints(QPointF p1, QPointF p2)
 
 QRect label_img::cvtRelativeToAbsoluteRectInUi(QRectF rectF)
 {
-    return QRect(static_cast<int>(rectF.x() * this->width() + 0.5),
-                 static_cast<int>(rectF.y() * this->height()+ 0.5),
-                 static_cast<int>(rectF.width() * this->width()+ 0.5),
-                 static_cast<int>(rectF.height()* this->height()+ 0.5));
+    int scaledWidth = static_cast<int>(this->width() * m_zoomFactor);
+    int scaledHeight = static_cast<int>(this->height() * m_zoomFactor);
+    
+    return QRect(static_cast<int>(rectF.x() * scaledWidth + 0.5),
+                 static_cast<int>(rectF.y() * scaledHeight + 0.5),
+                 static_cast<int>(rectF.width() * scaledWidth + 0.5),
+                 static_cast<int>(rectF.height() * scaledHeight + 0.5));
 }
 
 QRect label_img::cvtRelativeToAbsoluteRectInImage(QRectF rectF)
@@ -400,12 +445,18 @@ QRect label_img::cvtRelativeToAbsoluteRectInImage(QRectF rectF)
 
 QPoint label_img::cvtRelativeToAbsolutePoint(QPointF p)
 {
-    return QPoint(static_cast<int>(p.x() * this->width() + 0.5), static_cast<int>(p.y() * this->height() + 0.5));
+    int scaledWidth = static_cast<int>(this->width() * m_zoomFactor);
+    int scaledHeight = static_cast<int>(this->height() * m_zoomFactor);
+    
+    return QPoint(static_cast<int>(p.x() * scaledWidth + 0.5), static_cast<int>(p.y() * scaledHeight + 0.5));
 }
 
 QPointF label_img::cvtAbsoluteToRelativePoint(QPoint p)
 {
-    return QPointF(static_cast<double>(p.x()) / this->width(), static_cast<double>(p.y()) / this->height());
+    int scaledWidth = static_cast<int>(this->width() * m_zoomFactor);
+    int scaledHeight = static_cast<int>(this->height() * m_zoomFactor);
+    
+    return QPointF(static_cast<double>(p.x()) / scaledWidth, static_cast<double>(p.y()) / scaledHeight);
 }
 
 void label_img::setContrastGamma(float gamma)
