@@ -314,7 +314,7 @@ void MainWindow::open_img_dir(bool& ret)
     collator.setNumericMode(true);
 
     QStringList fileList = dir.entryList(
-                QStringList() << "*.jpg" << "*.JPG" << "*.png" << "*.bmp",
+                QStringList() << "*.jpg" << "*.JPG" << "*.jpeg" << "*.JPEG" << "*.png" << "*.bmp",
                 QDir::Files);
 
     std::sort(fileList.begin(), fileList.end(), collator);
