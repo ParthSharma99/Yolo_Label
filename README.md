@@ -33,7 +33,7 @@ But... I've reinvented one...
 
  It's the **SENSITIVE** image-labeling tool for object detection!
  
-![image](https://user-images.githubusercontent.com/35001605/211553495-66e81a7d-df00-44ca-82e4-966000cddbd1.png)
+![image](docs/screenshot_main.png)
 
 https://user-images.githubusercontent.com/35001605/211560039-367f27d7-63ab-4342-824e-9f47f2afbc35.mp4
 
@@ -46,55 +46,47 @@ https://user-images.githubusercontent.com/35001605/211560039-367f27d7-63ab-4342-
   ![redmon2](https://user-images.githubusercontent.com/35001605/47635529-a1270100-db98-11e8-8c03-1dcea7c77d1d.PNG)
 # TUTORIAL / USAGE
 
-## Install and Run
+## Download
 
-1. Download this project
+Pre-built binaries are available on the [Releases](https://github.com/developer0hye/Yolo_Label/releases) page.
+
+| OS | Download | Note |
+|---|---|---|
+| **Windows (x64)** | [YoloLabel-Windows-x64.zip](https://github.com/developer0hye/Yolo_Label/releases/latest/download/YoloLabel-Windows-x64.zip) | Unzip and run `YoloLabel.exe` |
+| **Linux (x64)** | [YoloLabel-Linux-x64.AppImage](https://github.com/developer0hye/Yolo_Label/releases/latest/download/YoloLabel-Linux-x64.AppImage) | `chmod +x` and run |
+| **macOS (Apple Silicon)** | [YoloLabel-macOS.dmg](https://github.com/developer0hye/Yolo_Label/releases/latest/download/YoloLabel-macOS.dmg) | Open DMG and drag to Applications |
+
+## Install and Run
 
 ### For Windows
 
-2. Download [YOLOLabel_v1.2.1.zip](https://github.com/developer0hye/Yolo_Label/releases/download/v1.2.1/YoloLabel_v1.2.1.zip)
+1. Download [YoloLabel-Windows-x64.zip](https://github.com/developer0hye/Yolo_Label/releases/latest/download/YoloLabel-Windows-x64.zip)
 
-3. Unzip
+2. Unzip
 
-4. Run YoloLabel.exe
+3. Run YoloLabel.exe
 
 ![image](https://user-images.githubusercontent.com/35001605/111152300-e74b5680-85d3-11eb-8df7-178148548c12.png)
 
-### For Ubuntu 22.04
+### For Linux
 
-2. Download [YOLOLabel_v1.2.1.tar](https://github.com/developer0hye/Yolo_Label/releases/download/v1.2.1/YoloLabel_v1.2.1.tar)
+1. Download [YoloLabel-Linux-x64.AppImage](https://github.com/developer0hye/Yolo_Label/releases/latest/download/YoloLabel-Linux-x64.AppImage)
 
-3. Unzip and download libraries
+2. Make executable and run
 ```
-tar -xvf YoloLabel_v1.2.1.tar
-sudo apt update
-sudo apt-get install -y libgl1-mesa-dev
-sudo apt-get install libxcb-*
-sudo apt-get install libxkb*
+chmod +x YoloLabel-Linux-x64.AppImage
+./YoloLabel-Linux-x64.AppImage
 ```
-
-4. Run YoloLabel.sh
-```
-./YoloLabel.sh
-```
-
-![image](https://user-images.githubusercontent.com/35001605/212230332-7e62bc50-7440-45c8-afc3-faebc0b31318.png)
-
 
 ### For macOS
 
-2. Clone or download the source code of this repository
+1. Download [YoloLabel-macOS.dmg](https://github.com/developer0hye/Yolo_Label/releases/latest/download/YoloLabel-macOS.dmg)
 
-3. Open terminal and type command in the downloaded directory.
-```console
-yourMacOS:Yolo_Label you$ qmake
-yourMacOS:Yolo_Label you$ make
-```
+2. Open the DMG and drag `YoloLabel.app` to Applications
 
-4. Run YoloLabel.app/Contents/MacOS/YoloLabel in terminal or double click YoloLabel.app to run
-```console
-yourMacOS:Yolo_Label you$ ./YoloLabel.app/MacOS/YoloLabel
-```
+3. Launch YoloLabel from Applications
+
+> **Build from source:** If you prefer, install Qt 6 (`brew install qt@6`), clone this repo, then run `qmake && make`. See [Build with ONNX Runtime](#build-with-onnx-runtime) for auto-label support.
 
 ## Prepare Custom Dataset and Load
 
@@ -139,6 +131,18 @@ To minimize wrist strain when labeling, I adopted the method **"twice left butto
 
 ![endimage](https://user-images.githubusercontent.com/35001605/47704336-a6528180-dc66-11e8-8551-3ecb612b7353.PNG)
 
+## USAGE AND OPTIONS
+```
+./YoloLabel [dataset dir] [class file] [model.onnx]
+# Examples
+./YoloLabel ../project/dataset/objects/frames ../project/dataset/objects/obj_names.txt
+./YoloLabel ../project/dataset/objects/frames ../project/dataset/objects/obj_names.txt yolov8n.onnx
+./YoloLabel ../project/dataset/objects/frames yolov8n.onnx
+```
+
+Arguments are detected by file extension — `.onnx` files are loaded as YOLO models, all other files are loaded as class name lists. When a model with embedded class names is loaded without a class file, class names are populated from the model automatically.
+
+
 ## SHORTCUTS
 
 | Key | Action |
@@ -150,14 +154,105 @@ To minimize wrist strain when labeling, I adopted the method **"twice left butto
 | `O` | Open Files |
 | `V` | Visualize Class Name |
 | `Ctrl + S` | Save |
-| `Ctrl + C` | Delete all existing bounding boxes in the image |
-| `Ctrl + D` | Delete current image |
+| `Ctrl + Delete` (Windows/Linux) / `Cmd + Delete` (macOS) | Delete all existing bounding boxes in the image |
+| `Ctrl + D`, `Delete` | Delete current image |
+| `` ` `` (Backtick) | Select first class (class 0) |
+| `0-9` | Quick select class by number |
+| `Arrow Keys` | Nudge the bounding box under the cursor (~1-2px step) |
+| `Shift + Arrow Keys` | Nudge the bounding box under the cursor (~5px step) |
+| `Ctrl + Arrow Keys` (Windows/Linux) / `Cmd + Arrow Keys` (macOS) | Resize the bounding box under the cursor (~1-2px step, top-left corner fixed) |
+| `Ctrl + Shift + Arrow Keys` (Windows/Linux) / `Cmd + Shift + Arrow Keys` (macOS) | Resize the bounding box under the cursor (~5px step, top-left corner fixed) |
+| `Ctrl + C` (Windows/Linux) / `Cmd + C` (macOS) | Copy bounding boxes to clipboard |
+| `Ctrl + V` (Windows/Linux) / `Cmd + V` (macOS) | Paste bounding boxes from clipboard |
+| `Ctrl + Z` (Windows/Linux) / `Cmd + Z` (macOS) | Undo last action (add, remove, or clear all) |
+| `Ctrl + Y` (Windows) / `Ctrl + Shift + Z` (Linux) / `Cmd + Shift + Z` (macOS) | Redo last undone action |
+| `R` | Auto Label current image (requires loaded ONNX model) |
+| `Ctrl + 0` (Windows/Linux) / `Cmd + 0` (macOS) | Reset zoom to 100% |
 
 | Mouse | Action |
 |---|:---:|
 | `Right Click` | Delete Focused Bounding Box in the image <br> ![ezgif-5-8d0fb51bec75](https://user-images.githubusercontent.com/35001605/47706913-c20d5600-dc6d-11e8-8a5c-47065f6a6416.gif) |
-| `Wheel Down` | Save and Next Image  |
-| `Wheel Up` | Save and Prev Image |
+| `Left Click + Drag` on existing box | Move/reposition the bounding box |
+| `Option + Left Click` (macOS) / `Alt + Left Click` (Win/Linux) | Change class of focused bounding box to the currently selected label (no need to remove and redraw) |
+| `Double Click` on color column in label table | Change label color |
+| `Ctrl + Scroll` (Windows/Linux) / `Cmd + Scroll` (macOS) | Zoom in/out (centered on cursor, up to 10x) |
+| `Ctrl + Left Drag` (Windows/Linux) / `Cmd + Left Drag` (macOS) or `Middle Mouse Drag` | Pan while zoomed in |
+| `Wheel Down` (when cursor is over image) | Save and Next Image  |
+| `Wheel Up` (when cursor is over image) | Save and Prev Image |
+
+## Auto-Label (Pseudo Labeling)
+
+Tired of drawing every single bounding box by hand? Load a pre-trained YOLO model and let it do the boring work for you.
+
+YOLO-Label supports **local ONNX inference** — just export any [Ultralytics](https://github.com/ultralytics/ultralytics) detection model to `.onnx` and load it. Class names, input size, and model configuration are all read from the ONNX metadata automatically. No separate config files needed.
+
+### Supported Models
+
+Any Ultralytics detection model exported with `model.export(format="onnx")`:
+
+| Model | Note |
+|---|---|
+| YOLOv5 | Anchor-based, objectness score |
+| YOLOv8, YOLO11, YOLO12, YOLOv26 | Anchor-free |
+| End-to-end models | NMS baked in |
+
+### How to Use
+
+1. Open your dataset as usual (images + class file)
+2. Click **Load Model** and select a `.onnx` file
+3. Adjust the **confidence threshold** with the slider (default 25%)
+4. Click **Auto Label** (or press `R`) to detect objects on the current image
+5. Click **Auto Label All** to batch-process all images
+6. Review and correct results using the existing manual annotation tools — auto-labeled boxes can be moved, deleted, or undone (`Ctrl+Z`)
+
+> **Tip:** You can skip the class file entirely. If the model has embedded class names (all Ultralytics exports do), they will be loaded automatically.
+
+### Build with ONNX Runtime
+
+Pre-built releases include ONNX Runtime. To build from source with auto-label support:
+
+```bash
+# Download ONNX Runtime (one-time setup)
+./scripts/download_onnxruntime.sh
+
+# Build
+qmake YoloLabel.pro "ONNXRUNTIME_DIR=$PWD/onnxruntime"
+make -j$(nproc)
+```
+
+Without ONNX Runtime, the app builds and works normally — just without the auto-label feature.
+
+## Cloud Auto-Label (yololabel.com)
+
+No local GPU? No problem. YOLO-Label integrates with **[yololabel.com](https://yololabel.com)** — a cloud inference service that runs open-vocabulary object detection on your images without requiring any local model or GPU.
+
+### Create an Account and Get an API Key
+
+1. Go to [yololabel.com](https://yololabel.com) and sign up with **email + password** or **Sign in with Google**
+2. If you registered with email, check your inbox and click the verification link
+3. Log in and navigate to **API Keys**, then click **Create Key**
+4. Give the key a name and copy it immediately — it is shown only once
+
+### How to Use
+
+1. Open your dataset as usual
+2. In the **⚙ AI Settings** tab on the right panel, paste your API key and (optionally) a custom detection prompt
+   - The prompt is a semicolon-separated list of labels, e.g. `car; person; bicycle`
+   - Leave blank to use the loaded class names automatically
+3. Click **☁ Auto Label AI** to detect objects in the current image
+4. Click **☁ Auto Label All AI** to process the entire dataset
+
+### Batch Processing
+
+When **☁ Auto Label All AI** is clicked with multiple images, images are submitted in batches of up to 20 per request using the `/v1/jobs/batch` endpoint. Progress is shown live in the button label.
+
+## Contrast Adjustment
+
+Use the **Contrast slider** at the top of the window to adjust image brightness/contrast in real-time. This is useful when labeling dark or overexposed images. The slider ranges from 0% to 100% (default 50%).
+
+## Usage Timer
+
+A timer in the status bar counts how many hours (and minutes/seconds) you have been using the program. It runs **only while the window is focused** (switches to another app to pause). Use the **Reset** button in the status bar to zero the timer at any time.
 
 ## Button Events
 
@@ -181,8 +276,6 @@ I've reinvented the wheel.
 
 # TO DO LISTS
 
-Upload binary file for easy usage for windows and ubuntu
-
-deployment for ubuntu
-
-Image zoom
+- [x] ~~Upload binary file for easy usage for windows and ubuntu~~
+- [x] ~~deployment for ubuntu~~
+- [x] ~~macOS Developer signing for Gatekeeper~~

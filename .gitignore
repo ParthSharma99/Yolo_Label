@@ -119,3 +119,15 @@ compile_commands.json
 
 
 # End of https://www.toptal.com/developers/gitignore/api/qtcreator,qt,c++
+
+# Local workflow doc, do not commit
+CONTRIBUTING.md
+
+# macOS
+.DS_Store
+
+# Qt MOC predefines
+moc_predefs.h
+
+# ONNX Runtime (downloaded pre-built binaries)
+onnxruntime/

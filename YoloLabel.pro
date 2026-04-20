@@ -4,35 +4,44 @@
 #
 #-------------------------------------------------
 
-QT       += core gui widgets
+QT       += core gui widgets network
 
 TARGET = YoloLabel
 TEMPLATE = app
 
-# The following define makes your compiler emit warnings if you use
-# any feature of Qt which has been marked as deprecated (the exact warnings
-# depend on your compiler). Please consult the documentation of the
-# deprecated API in order to know how to port your code away from it.
-DEFINES += QT_DEPRECATED_WARNINGS
+DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
 
-# You can also make your code fail to compile if you use deprecated APIs.
-# In order to do so, uncomment the following line.
-# You can also select to disable deprecated APIs only up to a certain version of Qt.
-#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
-
-CONFIG += c++1z
+CONFIG += c++17
 
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    label_img.cpp
+    label_img.cpp \
+    cloud_labeler.cpp
 
 HEADERS += \
         mainwindow.h \
-    label_img.h
+    label_img.h \
+    cloud_labeler.h
 
 FORMS += \
         mainwindow.ui
+
+# --- ONNX Runtime integration (optional) ---
+isEmpty(ONNXRUNTIME_DIR): ONNXRUNTIME_DIR = $$PWD/onnxruntime
+exists($$ONNXRUNTIME_DIR/include) {
+    DEFINES += ONNXRUNTIME_AVAILABLE
+    # Support both flat layout (include/onnxruntime_cxx_api.h)
+    # and Homebrew layout (include/onnxruntime/onnxruntime_cxx_api.h)
+    INCLUDEPATH += $$ONNXRUNTIME_DIR/include
+    exists($$ONNXRUNTIME_DIR/include/onnxruntime) {
+        INCLUDEPATH += $$ONNXRUNTIME_DIR/include/onnxruntime
+    }
+    LIBS += -L$$ONNXRUNTIME_DIR/lib -lonnxruntime
+    unix: QMAKE_RPATHDIR += $$ONNXRUNTIME_DIR/lib
+    SOURCES += yolo_detector.cpp
+    HEADERS += yolo_detector.h
+}
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
